@@ -3,21 +3,20 @@
 A "moldable literate programming" Lepiter page lets readers understand AND build a feature
 by evaluating snippets top-to-bottom. The page both explains concepts and generates all code.
 
-## The Four-Section Pattern
+## The Three-Section Pattern
 
 ```
 1. INTRODUCTION        (text only)
    ↓
 2. INTERACTIVE EXPLORATION  (text + Pharo snippets — understand the API)
    ↓
-3. PRODUCTION CLASS    (text)
-                       + Pharo: class definition only (subclass:...)
-                       + Pharo: methods (compile:classified:)  ← separate snippet!
-   ↓
-4. EXAMPLES / TESTS    (text)
-                       + Pharo: examples class definition only
-                       + Pharo: example methods (compile:classified:)  ← separate snippet!
-                       + one example snippet per gtExample method
+3. EXAMPLE-DRIVEN DEVELOPMENT SECTIONS
+    a. Invoke `gt-example-driven-development` to execute the code cycle (failing example → explore → implement → verify)
+    b. Create one Example-driven Development section documenting that iteration  (see **Example-driven Development Section Structure** below)
+    (repeat for each iteration, keeping generated code in the image)
+4. UNDO — Remove all generated classes from the image (MyClass removeFromSystem, MyClassExamples removeFromSystem)
+5. VALIDATE — Re-evaluate all page snippets top-to-bottom via MCP to confirm the page is self-contained
+6. UNDO AGAIN — Remove all generated classes from the image a second time, leaving only the Lepiter page
 ```
 
 > **Critical rule**: `compile:classified:` fails if the class does not yet exist in the
@@ -49,129 +48,42 @@ Alternating text + Pharo snippets that explore the Smalltalk API:
 - Use workspace variables (`server`, `client`, `tool`) freely — they persist between snippet evaluations
 - The full working example should be the last exploration snippet (starts AND tests AND stops)
 
-## Section 3: Production Class
+## Section 3: Example-driven Development Sections
 
-One transition text snippet, then **two Pharo snippets** (class definition first, methods second):
+For each EDD iteration, invoke `gt-example-driven-development` for the code cycle, then
+document the iteration with one section following the structure below. Repeat until all
+examples are implemented.
 
-### 3a. Class definition
+## Example-driven Development Section Structure
 
-```smalltalk
-"Definir la clase MyClass"
-Object subclass: #MyClass
-    instanceVariableNames: 'collaborator config'
-    classVariableNames: ''
-    package: 'DynaSpaceOS-MyFeature'.
+One section per iteration
+
+Each section is titled:
+```
+EDD - <ClassName> - Iteración <N>: <exampleMethodName>
 ```
 
-### 3b. Methods
+Snippets must be evaluable top-to-bottom, in this order:
 
-```smalltalk
-"Añadir métodos a MyClass"
-MyClass compile: 'initialize
-    config := SomeDefault new' classified: 'initialization'.
+1. **[text]** Introduction — what this example tests and why it's the right next step
+2. **[pharo]** Example class definition - only in the needed example class doesn't  exist yet (`subclass:` definition)
+3. **[pharo]** Example definition via `compile:classified:` (the initially failing example)
+4. **[text]** "Exploración interactiva" — explain what you explored and what you found
+5. **[pharo]** Exploration snippets — the eval calls and intermediate results from step 2
+6. **[text]** "Implementación mínima" — explain what minimum code is needed and why
+7. **[pharo]** Class definition — only if the production class doesn't exist yet (`subclass:` definition)
+8. **[pharo]** Method definitions via `compile:classified:` — always in a separate snippet from the class definition
+9. **[example]** `ClassName>>exampleMethodName` — live verification that it passes
 
-MyClass compile: 'config: aConfig
-    config := aConfig' classified: 'accessing'.
-
-MyClass compile: 'start
-    collaborator := SomeServer new config: config.
-    collaborator start.
-    ^ collaborator' classified: 'actions'.
-
-MyClass compile: 'stop
-    collaborator ifNotNil: [
-        collaborator stop.
-        collaborator := nil ]' classified: 'actions'.
-```
+Steps 2 and 7 are included only when a new class is created in this iteration. Never combine the class
+definition and method compilation into the same snippet — `compile:classified:` fails if the
+class doesn't exist yet.
 
 **Design guidance:**
 - One class per page is the norm; split into sub-pages if complexity grows
 - The class should wrap/encapsulate what was done manually in Section 2
 - Name: `DynOS` prefix for DynaSpaceOS package classes (e.g., `DynOSMcpEvalServer`)
 - Package: `DynaSpaceOS-<Feature>` (e.g., `DynaSpaceOS-MCP`)
-
-## Section 4: Examples Class
-
-One transition text snippet, then **three kinds of snippets**:
-
-1. One **Pharo snippet** with the class definition only (`subclass:`)
-2. One **Pharo snippet** with all the `compile:classified:` method calls
-3. One **example snippet** per `<gtExample>` method — muestran el resultado interactivamente
-
-### 4a. Pharo snippet — class definition only
-
-```smalltalk
-"Definir la clase MyClassExamples"
-Object subclass: #MyClassExamples
-    instanceVariableNames: ''
-    classVariableNames: ''
-    package: 'DynaSpaceOS-MyFeature'.
-```
-
-### 4b. Pharo snippet — example methods
-
-```smalltalk
-"Añadir métodos de ejemplo a MyClassExamples"
-
-"Example 1: basic instantiation + default state"
-MyClassExamples compile: 'instance
-    <gtExample>
-    | obj |
-    obj := MyClass new.
-    self assert: obj config isNotNil.
-    ^ obj' classified: 'examples'.
-
-"Example 2: operational state"
-MyClassExamples compile: 'startedInstance
-    <gtExample>
-    | obj |
-    obj := self instance.
-    [ obj start.
-      self assert: obj collaborator isNotNil ]
-        ensure: [ obj stop ].
-    ^ obj' classified: 'examples'.
-
-"Example 3: end-to-end behavior"
-MyClassExamples compile: 'fullRoundTrip
-    <gtExample>
-    | obj result |
-    obj := MyClass new.
-    [ obj start.
-      result := obj doSomething.
-      self assert: result = expectedValue ]
-        ensure: [ obj stop ].
-    ^ result' classified: 'examples'.
-```
-
-### 4b. Example snippets — one per method
-
-After the compile snippet, add one example snippet per method so los usuarios pueden
-verificar interactivamente que los tests pasan con éxito:
-
-```json
-{"type": "example", "content": "MyClassExamples>>instance"}
-{"type": "example", "content": "MyClassExamples>>startedInstance"}
-{"type": "example", "content": "MyClassExamples>>fullRoundTrip", "previewExpanded": true}
-```
-
-In Smalltalk (via `add_example` function or direct eval):
-```smalltalk
-s := LeExampleSnippet new
-    exampleBehaviorName: 'MyClassExamples';
-    exampleSelector: 'fullRoundTrip';
-    previewShowSelector: 'gtViewsFor:';
-    previewHeight: 200;
-    codeExpanded: true;
-    previewExpanded: false.
-page addSnippet: s.
-```
-
-**gtExample rules:**
-- Always use `<gtExample>` pragma
-- Use `ensure: [obj stop]` for resources that must be cleaned up
-- Chain examples: `self instance` calls the previous example
-- Each example returns the primary object for inspection
-- 3 examples is a good target: (1) instantiation, (2) operational state, (3) behavior
 
 ## Naming Conventions in DynaSpaceOS
 
@@ -182,27 +94,37 @@ page addSnippet: s.
 | Package | `DynaSpaceOS-<Feature>` | `DynaSpaceOS-MCP` |
 | Lepiter page title | Descriptive, Spanish or English | `Servidor MCP con herramienta eval` |
 
-## Complete Snippet Sequence (typical, with 3 examples)
+## Complete Snippet Sequence (typical, with 2 EDD iterations)
 
 ```
+── Section 1: Introduction ──────────────────────────────────────
 1.  text    — Introduction
+
+── Section 2: Interactive Exploration ──────────────────────────
 2.  text    — "Exploring ClassName"
 3.  pharo   — ClassName new
 4.  text    — "Configuring X"
 5.  pharo   — ClassName new setter: value
-6.  text    — "Creating a collaborator"
-7.  pharo   — CollaboratorClass new ...
-8.  text    — "Wiring together + start"
-9.  pharo   — Full working example (start + use + stop)
-10. text    — "Detener" / cleanup note
-11. pharo   — thing stop
-12. text    — "Clase reutilizable: DynOSMyClass"
-13. pharo   — Class definition only: Object subclass: #DynOSMyClass ...
-14. pharo   — Method definitions: DynOSMyClass compile: ... (all methods)
-15. text    — "Ejemplos (tests)"
-16. pharo   — Class definition only: Object subclass: #DynOSMyClassExamples ...
-17. pharo   — Method definitions: DynOSMyClassExamples compile: ... (all examples)
-18. example — DynOSMyClassExamples>>instance
-19. example — DynOSMyClassExamples>>startedInstance
-20. example — DynOSMyClassExamples>>fullRoundTrip
+6.  text    — "Wiring together"
+7.  pharo   — Full working example (start + use + stop)
+
+── Section 3: EDD Iteration 1 ──────────────────────────────────
+8.  text    — "EDD - MyClass - Iteración 1: exampleCreation" (intro)
+9.  pharo   — Examples class definition (only if class doesn't exist yet)
+10. pharo   — compile: example method (initially failing)
+11. text    — "Exploración interactiva"
+12. pharo   — exploration eval snippets
+13. text    — "Implementación mínima"
+14. pharo   — Production class definition (only if class doesn't exist yet)
+15. pharo   — compile: production methods
+16. example — MyClassExamples>>exampleCreation
+
+── Section 3: EDD Iteration 2 ──────────────────────────────────
+17. text    — "EDD - MyClass - Iteración 2: exampleBehavior" (intro)
+18. pharo   — compile: example method (initially failing)
+19. text    — "Exploración interactiva"
+20. pharo   — exploration eval snippets
+21. text    — "Implementación mínima"
+22. pharo   — compile: production methods
+23. example — MyClassExamples>>exampleBehavior
 ```

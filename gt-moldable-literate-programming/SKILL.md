@@ -2,9 +2,10 @@
 name: gt-moldable-literate-programming
 description: >
   Guide for implementing functionality in GToolkit/Pharo following the "moldable literate
-  programming" style. Creates Lepiter pages where readers understand a feature by evaluating
-  Smalltalk snippets top-to-bottom: interactive API exploration first, then a snippet that
-  compiles the production class, then a snippet that compiles gtExample tests.
+  programming" style. Creates a single Lepiter page where readers understand a feature by
+  evaluating Smalltalk snippets top-to-bottom: interactive API exploration first, then one
+  section per EDD iteration (each with its failing example, exploration, minimum
+  implementation, and live verification).
   Use when the user says things like: "implementa con moldable literate programming",
   "desarrolla usando live literate programming", "crea una funcionalidad usando literate
   programming con Lepiter", "crea una página Lepiter para implementar X", or any request
@@ -17,12 +18,13 @@ description: >
 
 1. **Clarify** — Understand what class/feature to implement and what the production class should do
 2. **Explore the API** — Identify which GT classes to use; look them up via MCP eval if needed
-3. **Build the page** — Create a Lepiter page with the four-section pattern (see below)
-4. **Validate** — Verify snippets work by running them via the MCP
-5. **Update ToC** - If the knowledge database where the Lepiter page was created has a Table of Contents,
-update the ToC adding the link to the new creted page.
+3. **Build the page** — Create a Lepiter page with the three-section pattern (see below); for each EDD iteration, keep the generated code in the image until all sections are documented
+4. **Undo** — Remove all generated classes from the image (`MyClass removeFromSystem`, `MyClassExamples removeFromSystem`)
+5. **Validate** — Re-evaluate all page snippets top-to-bottom via MCP to confirm the page is self-contained and recreates the code from scratch
+6. **Undo again** — Remove all generated classes from the image a second time, leaving only the Lepiter page as the sole source of truth
+7. **Update ToC** — If the knowledge database has a Table of Contents, add a link to the new page
 
-## Page Structure (four sections)
+## Page Structure (three sections)
 
 See `references/page-structure.md` for the full pattern with snippet counts, naming
 conventions, and gtExample rules.
@@ -31,13 +33,7 @@ Quick summary — snippets must be evaluable top-to-bottom in this order:
 
 1. **Introduction** (text) — what the page builds and why
 2. **Interactive exploration** (alternating text + Pharo) — explore GT API objects interactively
-3. **Production class** (text + **two** Pharo snippets):
-   - Snippet A: class definition only (`Object subclass: #MyClass ...`)
-   - Snippet B: method definitions (`MyClass compile: '...' classified: '...'`)
-4. **Examples/tests** (text + **two** Pharo snippets + example snippets):
-   - Snippet A: examples class definition only
-   - Snippet B: example method definitions (`MyClassExamples compile: ...`)
-   - One `LeExampleSnippet` per `<gtExample>` method
+3. **Example-driven Development**  as many sections as iterations of example-driven development
 
 > **Critical**: `compile:classified:` fails if the class doesn't exist yet. Always put the
 > `subclass:` definition in a **separate snippet before** any `compile:` calls.
