@@ -23,6 +23,20 @@ description: >
 5. **Validate** — Re-evaluate all page snippets top-to-bottom via MCP to confirm the page is self-contained and recreates the code from scratch
 6. **Undo again** — Remove all generated classes from the image a second time, leaving only the Lepiter page as the sole source of truth
 7. **Update ToC** — If the knowledge database has a Table of Contents, add a link to the new page
+8. **Sync & commit** *(Claude Code on the web only)* — GToolkit writes Lepiter files to its own Iceberg mirror (`pharo-local/iceberg/blueplanelabs/dynaspace-os/lepiter/`), not to the cloned workspace. After completing previous steps, sync those files into the repo and push:
+
+```bash
+# Copy GToolkit's Lepiter output into the tracked lepiter/ directory
+cp -r pharo-local/iceberg/blueplanelabs/dynaspace-os/lepiter/. lepiter/
+
+# Stage, commit and push+git add lepiter/
+git commit -m "Add Lepiter page: <page title>"
+git push -u origin <branch>
+```
+
+**When to run step 8**: only when the session is running inside *Claude Code on the web*
+(i.e. the shell environment is the sandboxed web container and GToolkit is the local image).
+In a local developer session this step is unnecessary.
 
 ## Page Structure (three sections)
 
