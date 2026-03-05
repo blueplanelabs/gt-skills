@@ -1,51 +1,51 @@
 # gt-skills
 
-Claude Code skills para desarrollar en **GlamorousToolkit (GT)** / Pharo Smalltalk.
+Claude Code skills for developing in **GlamorousToolkit (GT)** / Pharo Smalltalk.
 
-## Skills disponibles
+## Available skills
 
 ### `gt-example-driven-development`
 
-Guía el ciclo de código **Example-driven Development (EDD)**: por cada funcionalidad, escribe primero el ejemplo (fallido), explora interactivamente en GT, implementa el mínimo necesario, y verifica que pasa. Se repite por cada iteración.
+Guides the **Example-driven Development (EDD)** code cycle: for each piece of functionality, write the example first (failing), explore interactively in GT, implement the minimum needed, and verify it passes. Repeat for each iteration.
 
-- Trabaja exclusivamente con el ciclo de código (`compile:` en imagen)
-- La implementación es incremental: los métodos comienzan como stubs y evolucionan cuando un ejemplo posterior lo requiere
-- La documentación Lepiter la gestiona `gt-moldable-literate-programming`
+- Works exclusively with the code cycle (`compile:` into the image)
+- Implementation is incremental: methods start as stubs and evolve when a later example requires real logic
+- Lepiter documentation is handled by `gt-moldable-literate-programming`
 
-**Se activa con frases como:**
-- "implementa X con EDD"
-- "desarrolla X usando Example Driven Development"
-- "crea X siguiendo EDD"
+**Triggered by phrases like:**
+- "implement X with EDD"
+- "develop X using Example Driven Development"
+- "build X following EDD"
 
 ### `gt-moldable-literate-programming`
 
-Guía la creación de **páginas Lepiter documentadas con código vivo**, siguiendo el estilo de Moldable Development. Genera una única página evaluable de arriba a abajo que combina exploración interactiva y EDD.
+Guides the creation of **Lepiter pages documented with live code**, following the Moldable Development style. Produces a single page evaluable top-to-bottom that combines interactive exploration and EDD.
 
-- Estructura: Introducción → Exploración interactiva → Example-driven Development (una sección por iteración)
-- Workflow de 7 pasos con doble deshacer: la página Lepiter queda como única fuente de verdad
-- Usa internamente `gt-example-driven-development` para el ciclo de código
+- Structure: Introduction → Interactive exploration → Example-driven Development (one section per iteration)
+- 7-step workflow with double undo: the Lepiter page becomes the sole source of truth
+- Uses `gt-example-driven-development` internally for the code cycle
 
-**Se activa con frases como:**
-- "implementa X con moldable literate programming"
-- "desarrolla X usando live literate programming"
-- "crea una página Lepiter para implementar X"
+**Triggered by phrases like:**
+- "implement X with moldable literate programming"
+- "develop X using live literate programming"
+- "create a Lepiter page to implement X"
 
-## Relación entre los skills
+## Relationship between skills
 
 ```
 gt-moldable-literate-programming
         │
-        └── usa ──► gt-example-driven-development (ciclo de código)
+        └── uses ──► gt-example-driven-development (code cycle)
 ```
 
-Puedes invocar `gt-example-driven-development` de forma independiente cuando solo necesitas el ciclo de código sin documentación Lepiter.
+You can invoke `gt-example-driven-development` independently when you only need the code cycle without Lepiter documentation.
 
-## Requisitos
+## Requirements
 
-- **GlamorousToolkit** con el proyecto cargado en imagen
-- **Servidor MCP** activo (evaluar el snippet de arranque en la página "Servidor MCP para GToolkit")
-- **Claude Code** con los skills instalados en `.claude/skills/`
+- **GlamorousToolkit** with the project loaded in the image
+- **MCP server** running (evaluate the startup snippet on the "Servidor MCP para GToolkit" Lepiter page)
+- **Claude Code** with the skills installed under `.claude/skills/`
 
-## Instalación
+## Installation
 
-Clona este repositorio (o añádelo como submódulo) en `.claude/skills/gt-skills/` dentro de tu proyecto. Claude Code descubrirá los skills automáticamente al leer los `SKILL.md` de cada subdirectorio.
+Clone this repository (or add it as a submodule) into `.claude/skills/gt-skills/` inside your project. Claude Code will discover the skills automatically by reading the `SKILL.md` file in each subdirectory.
