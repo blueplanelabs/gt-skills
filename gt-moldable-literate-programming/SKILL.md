@@ -4,7 +4,7 @@ description: >
   Guide for implementing functionality in GToolkit/Pharo following the "moldable literate
   programming" style. Creates a single Lepiter page where readers understand a feature by
   evaluating Smalltalk snippets top-to-bottom: interactive API exploration first, then one
-  section per EDD iteration (each with its failing example, exploration, minimum
+  section per Example-driven Development iteration (each with its failing example, exploration, minimum
   implementation, and live verification).
   Use when the user says things like: "implementa con moldable literate programming",
   "desarrolla usando live literate programming", "crea una funcionalidad usando literate
@@ -18,7 +18,7 @@ description: >
 
 1. **Clarify** — Understand what class/feature to implement and what the production class should do
 2. **Explore the API** — Identify which GT classes to use; look them up via MCP eval if needed
-3. **Build the page** — Create a Lepiter page with the three-section pattern (see below); for each EDD iteration, keep the generated code in the image until all sections are documented
+3. **Build the page** — Create a Lepiter page with the three-section pattern (see below); for each Example-driven Development iteration, keep the generated code in the image until all sections are documented
 4. **Undo** — Remove all generated classes from the image (`MyClass removeFromSystem`, `MyClassExamples removeFromSystem`)
 5. **Validate** — Re-evaluate all page snippets top-to-bottom via MCP to confirm the page is self-contained and recreates the code from scratch
 6. **Undo again** — Remove all generated classes from the image a second time, leaving only the Lepiter page as the sole source of truth
@@ -33,7 +33,7 @@ Quick summary — snippets must be evaluable top-to-bottom in this order:
 
 1. **Introduction** (text) — what the page builds and why
 2. **Interactive exploration** (alternating text + Pharo) — explore GT API objects interactively
-3. **Example-driven Development**  as many sections as iterations of example-driven development
+3. **Example-driven Development** — starts with a `##` text snippet titled "Example-driven Development", followed by as many EDD sections as iterations; each section uses a descriptive `###` title explaining what the example verifies (not a technical identifier like the method name)
 
 > **Critical**: `compile:classified:` fails if the class doesn't exist yet. Always put the
 > `subclass:` definition in a **separate snippet before** any `compile:` calls.

@@ -16,7 +16,7 @@ description: >
 
 ## Overview
 
-EDD in GToolkit is a tight iterative cycle: write an example that fails → explore interactively
+Example-driven Development in GToolkit is a tight iterative cycle: write an example that fails → explore interactively
 in GT → implement the minimum code to make it pass → verify it passes.
 Repeat for each new example, always building on the output of previous ones.
 
@@ -34,7 +34,7 @@ mcp__gtoolkit-dynaspace__eval  code: "1+1"
 If the tool is unavailable, ask the user to start the MCP server by evaluating the startup
 snippet on the "Servidor MCP para GToolkit" Lepiter page.
 
-## The EDD Iteration Cycle
+## The Example-driven Development Iteration Cycle
 
 Each feature is built example by example. For each iteration:
 
@@ -88,6 +88,11 @@ you understand the problem, not just solve it.
 Write only enough code to make the current example pass. No more. Use `compile:classified:`
 via MCP eval.
 
+**The implementation is built incrementally across iterations.** A method may start with a
+hardcoded or trivially false return value and be redefined in a later iteration when a new
+example demands real logic. This is intentional: each example reveals only what is needed
+right now.
+
 If the production class doesn't exist yet, create it first in a separate eval call before
 adding any methods — `compile:classified:` fails if the class doesn't exist:
 
@@ -98,7 +103,7 @@ Object subclass: #MyClass
     package: 'MyPackage'
 ```
 
-Then add the methods:
+Then add only the methods required by the current example:
 
 ```smalltalk
 MyClass compile: 'someMethod
@@ -106,7 +111,77 @@ MyClass compile: 'someMethod
 ' classified: 'accessing'.
 ```
 
-Even a trivial or hardcoded implementation is fine at this stage. The goal is green, not perfect.
+**Example of incremental growth (from DynOSTicTacToe):**
+
+- Iteration 1 (`exampleBoardCreation`) only asserts `isFull = false` and `hasWon: 'X' = false`.
+  Minimum implementation — hardcoded stubs, no instance variables needed yet:
+  ```smalltalk
+  Object subclass: #DynOSTicTacToeBoard
+      instanceVariableNames: ''
+      classVariableNames: ''
+      package: 'DynaSpaceOS-Examples'
+
+  DynOSTicTacToeBoard compile: 'isFull
+      ^ false
+  ' classified: 'testing'.
+
+  DynOSTicTacToeBoard compile: 'hasWon: player
+      ^ false
+  ' classified: 'testing'.
+  ```
+
+- Iteration 2 (`exampleBoardMark`) needs `markAt:col:player:` and `at:col:`, which require
+  a real `grid`. Redefine the class adding the instance variable, then implement:
+  ```smalltalk
+  Object subclass: #DynOSTicTacToeBoard
+      instanceVariableNames: 'grid'
+      classVariableNames: ''
+      package: 'DynaSpaceOS-Examples'
+
+  DynOSTicTacToeBoard compile: 'initialize
+      grid := Array new: 9 withAll: nil
+  ' classified: 'initialization'.
+
+  DynOSTicTacToeBoard compile: 'at: row col: col
+      ^ grid at: (row * 3 + col + 1)
+  ' classified: 'accessing'.
+
+  DynOSTicTacToeBoard compile: 'markAt: row col: col player: player
+      grid at: (row * 3 + col + 1) put: player
+  ' classified: 'operations'.
+  ```
+
+- Iteration 3 (`exampleXWinDetection`) needs real win detection. Now `hasWon:` gets its
+  proper implementation, replacing the stub from iteration 1:
+  ```smalltalk
+  DynOSTicTacToeBoard compile: 'allLines
+      ^ #(
+          #(1 2 3) #(4 5 6) #(7 8 9)
+          #(1 4 7) #(2 5 8) #(3 6 9)
+          #(1 5 9) #(3 5 7)
+      )
+  ' classified: 'accessing'.
+
+  DynOSTicTacToeBoard compile: 'hasWon: player
+      ^ self allLines anySatisfy: [:line |
+          line allSatisfy: [:idx | (grid at: idx) = player]]
+  ' classified: 'testing'.
+  ```
+
+- Iteration 4 (`exampleDrawDetection`) needs real full-board detection. `isFull` stub
+  gets replaced:
+  ```smalltalk
+  DynOSTicTacToeBoard compile: 'isFull
+      ^ grid allSatisfy: [:cell | cell notNil]
+  ' classified: 'testing'.
+  ```
+
+**Key rules:**
+- Hardcoded or stub returns are valid when the current example does not exercise real logic.
+- Redefining a method in a later iteration is expected and correct — it means the previous
+  example was too simple to require that logic yet.
+- Never implement logic for a future example: if the current example passes with `^ false`,
+  leave it as `^ false`.
 
 ### Step 4 — Verify the Example Passes
 
@@ -178,5 +253,3 @@ MyClassExamples compile: 'exampleWithServer
 - Production class: `DynOS` prefix — e.g., `DynOSCounter`
 - Examples class: same + `Examples` — e.g., `DynOSCounterExamples`
 - Package: `DynaSpaceOS-<Feature>` — e.g., `DynaSpaceOS-Counter`
-- Target Lepiter database: `DynaSpaceOS`
-- Page title: `EDD - DynOSCounter - Iteración 1: exampleBasicCreation`

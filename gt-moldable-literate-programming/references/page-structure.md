@@ -50,22 +50,25 @@ Alternating text + Pharo snippets that explore the Smalltalk API:
 
 ## Section 3: Example-driven Development Sections
 
-For each EDD iteration, invoke `gt-example-driven-development` for the code cycle, then
-document the iteration with one section following the structure below. Repeat until all
-examples are implemented.
+Starts with a `##` text snippet titled **"Example-driven Development"**. Then, for each
+EDD iteration, invoke `gt-example-driven-development` for the code cycle and document the
+iteration with one section following the structure below. Repeat until all examples are
+implemented.
 
 ## Example-driven Development Section Structure
 
-One section per iteration
+One section per iteration.
 
-Each section is titled:
-```
-EDD - <ClassName> - Iteración <N>: <exampleMethodName>
-```
+Each section is titled with a **short descriptive phrase** explaining what the example verifies,
+not a technical identifier. The example method name and iteration number belong in the
+introductory text snippet, not in the title.
+
+Good titles: "Creación del tablero vacío", "Marcado de una casilla", "Detección de victoria en fila"
+Avoid: "EDD - DynOSTicTacToeBoard - Iteración 1: exampleBoardCreation"
 
 Snippets must be evaluable top-to-bottom, in this order:
 
-1. **[text]** Introduction — what this example tests and why it's the right next step
+1. **[text]** Introduction — descriptive title (`###`) + iteration reference (`exampleMethodName`, N) + what this example tests and why it's the right next step
 2. **[pharo]** Example class definition - only in the needed example class doesn't  exist yet (`subclass:` definition)
 3. **[pharo]** Example definition via `compile:classified:` (the initially failing example)
 4. **[text]** "Exploración interactiva" — explain what you explored and what you found
@@ -108,23 +111,26 @@ class doesn't exist yet.
 6.  text    — "Wiring together"
 7.  pharo   — Full working example (start + use + stop)
 
+── Section 3: Example-driven Development ───────────────────────
+8.  text    — "## Example-driven Development" (section heading)
+
 ── Section 3: EDD Iteration 1 ──────────────────────────────────
-8.  text    — "EDD - MyClass - Iteración 1: exampleCreation" (intro)
-9.  pharo   — Examples class definition (only if class doesn't exist yet)
-10. pharo   — compile: example method (initially failing)
-11. text    — "Exploración interactiva"
-12. pharo   — exploration eval snippets
-13. text    — "Implementación mínima"
-14. pharo   — Production class definition (only if class doesn't exist yet)
-15. pharo   — compile: production methods
-16. example — MyClassExamples>>exampleCreation
+9.  text    — "### Creación del objeto" (descriptive title + iteration ref in body)
+10. pharo   — Examples class definition (only if class doesn't exist yet)
+11. pharo   — compile: example method (initially failing)
+12. text    — "Exploración interactiva"
+13. pharo   — exploration eval snippets
+14. text    — "Implementación mínima"
+15. pharo   — Production class definition (only if class doesn't exist yet)
+16. pharo   — compile: production methods
+17. example — MyClassExamples>>exampleCreation
 
 ── Section 3: EDD Iteration 2 ──────────────────────────────────
-17. text    — "EDD - MyClass - Iteración 2: exampleBehavior" (intro)
-18. pharo   — compile: example method (initially failing)
-19. text    — "Exploración interactiva"
-20. pharo   — exploration eval snippets
-21. text    — "Implementación mínima"
-22. pharo   — compile: production methods
-23. example — MyClassExamples>>exampleBehavior
+18. text    — "### Comportamiento principal" (descriptive title + iteration ref in body)
+19. pharo   — compile: example method (initially failing)
+20. text    — "Exploración interactiva"
+21. pharo   — exploration eval snippets
+22. text    — "Implementación mínima"
+23. pharo   — compile: production methods
+24. example — MyClassExamples>>exampleBehavior
 ```
