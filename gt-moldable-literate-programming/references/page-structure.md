@@ -19,9 +19,7 @@ by evaluating snippets top-to-bottom. The page both explains concepts and genera
 6. UNDO AGAIN — Remove all generated classes from the image a second time, leaving only the Lepiter page
 ```
 
-> **Critical rule**: `compile:classified:` fails if the class does not yet exist in the
-> image. Always define the class (`subclass:`) in its own snippet **before** any snippet
-> that adds methods to it.
+> **Critical rule**: Any message sent to a class (or its metaclass) fails if the class does not yet exist in the image. This includes not only `compile:classified:` but also `class instanceVariableNames:` and any other message sent to the class or its metaclass. Always define the class (`subclass:`) in its own snippet **before** any snippet that references it as a receiver — including metaclass configuration like `DynOSProCam class instanceVariableNames: '...'`.
 
 ## Section 1: Introduction
 

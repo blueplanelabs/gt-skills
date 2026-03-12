@@ -183,6 +183,44 @@ MyClass compile: 'someMethod
 - Never implement logic for a future example: if the current example passes with `^ false`,
   leave it as `^ false`.
 
+**Implementation design heuristics**
+
+When deciding which instance variables to add and how to structure methods, apply these criteria:
+
+- **Delegate instead of copying** when another object is already the authority on the data.
+  If `Owner` holds a `Source` and `Source` has `value`, make `Owner >> value` return
+  `^ source value` rather than copying the data into `Owner`. That way, if `Source`
+  changes, `Owner` reflects the change automatically.
+
+  *Example: `DynOSProCamInputDetector >> hcw` delegates to `proCam hcw` instead of
+  keeping its own copy of the matrix.*
+
+  *Only copy the data if you need a snapshot independent of `Source`'s lifecycle
+  (point-in-time snapshot, performance cache, deliberate decoupling).*
+
+- **One instvar per responsibility**: if two instVars are always assigned together
+  and represent the same concept, they probably belong in their own object.
+
+- **Avoid individual setters when a whole-object setter exists**: if there is a
+  `source:` setter that assigns the root object, setters for its parts (`partA:`,
+  `partB:`, etc.) are usually redundant and create paths to leave the object in an
+  inconsistent state.
+
+  *Example: once `proCam:` exists, setters `hcw:`, `hwc:`, etc. are unnecessary —
+  the only way to assign matrices should be by assigning a complete `DynOSProCam`.*
+
+- **Extract the core logic into a testable method**: when a method mixes data
+  acquisition (I/O, camera, network) with computation, extract the computation into
+  a separate method that takes the data as parameters. The acquisition method then
+  just collects the data and delegates.
+
+  This makes the core logic independently testable without hardware or external
+  dependencies.
+
+  *Example: `DynOSProCamCalibrator >> calibrate` collects camera points and delegates
+  to `calibrateFromCameraPoints:worldPoints:`, which contains all the
+  HomographyCalculator logic and can be tested with synthetic data.*
+
 ### Step 4 — Verify the Example Passes
 
 Run the example and confirm it passes (no assertion errors, returns the expected value):
