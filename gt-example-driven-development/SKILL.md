@@ -71,6 +71,27 @@ MyClassExamples compile: 'exampleBasicBehavior
 Every example must include `<description:>` and `<return:>`. Add `<after:>` or other pragmas
 when needed (see **Pragmas** section below).
 
+**If the example tests a `BlElement`** (size, position, children, rendering, or user interactions),
+use `<return: #BlScripter>` instead of the element type, and wrap assertions in a `BlScripter`:
+
+```smalltalk
+MyClassExamples compile: 'exampleRendersCorrectly
+    <gtExample>
+    <description: ''Element renders with correct size''>
+    <return: #BlScripter>
+    | element scripter |
+    element := MyElement new.
+    scripter := BlScripter new element: element.
+    scripter checkStep: [ :s |
+        s value: [ :el | el size ] equals: [ 120 @ 120 ] ].
+    ^ scripter
+'' classified: ''examples''.
+```
+
+Direct assertions on visual properties (`el size`, `el position`, etc.) always fail because
+layout hasn't run yet. `BlScripter new element:` triggers layout via `BlMockedHost` (headless).
+See the `gt-scripter` skill for full patterns: navigation, mouse/keyboard, substeps, helpers.
+
 The example should fail at this point. That's intentional and expected.
 
 ### Step 2 — Explore Interactively
