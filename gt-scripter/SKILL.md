@@ -52,6 +52,14 @@ myExample
 - `<return: #BlScripter>` — not the element type
 - `BlScripter new element: anElement` — triggers layout immediately via `privatePulseUntilReady`
 - The default space is `800@600` with `BlMockedHost` (headless, no real display needed)
+- If the element is larger than `800@600`, set `extent:` before `element:` — otherwise the preview clips the content
+
+```smalltalk
+"Element larger than the default 800@600 space"
+scripter := BlScripter new
+    extent: 1920 @ 1080;
+    element: (BlElement new size: 1920 @ 1080; yourself).
+```
 
 ---
 
@@ -214,8 +222,26 @@ scripter typeStep: [ :s | s text: 'search term' ].
 
 ## Actions on Elements
 
+Toda mutación de estado que deba ser **visible en el árbol de pasos** (con su snapshot) debe ir dentro de un `doStep:`. Las llamadas directas fuera de un step son **invisibles para BlScripter**: no generan snapshot, no aparecen en el árbol de pasos y el preview mostrará únicamente el estado final.
+
 ```smalltalk
-"Modify element state mid-script"
+"INCORRECTO — acción directa invisible para BlScripter"
+calibrator projectCalibrationMarkers.        "sin step, sin snapshot"
+scripter checkStep: [ :s |
+    s value: [ :el | el children size ] equals: [ 9 ] ].  "pasa, pero el doStep no existe"
+
+"CORRECTO — acción registrada como step con snapshot"
+scripter doStep: [ :s |
+    s label: 'Project 9 ArUco calibration markers'.
+    s block: [ calibrator projectCalibrationMarkers ] ].
+scripter checkStep: [ :s |
+    s value: [ :el | el children size ] equals: [ 9 ] ].
+```
+
+El bloque de `block:` puede recibir 0, 1 (el target), 2 o 3 argumentos (via `cull:`). Un bloque sin argumentos es suficiente cuando el objeto a mutar está capturado en el closure.
+
+```smalltalk
+"Modify element state mid-script (target: el)"
 scripter doStep: [ :s |
     s label: 'Hide child'.
     s block: [ :el | el visibility: BlVisibility hidden ].
@@ -226,6 +252,11 @@ scripter doStep: [ :s |
     s label: 'Resize space'.
     s block: [ :space | space extent: 1920@1080 ].
     s onSpace ].
+
+"Execute block on a closure-captured object (0-arg block)"
+scripter doStep: [ :s |
+    s label: 'Remove calibration markers'.
+    s block: [ calibrator removeCalibrationMarkers ] ].
 ```
 
 ---
