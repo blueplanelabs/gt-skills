@@ -74,12 +74,24 @@ See `references/lepiter-mcp-api.md` for Smalltalk snippets for advanced operatio
 
 ### Quoting rule for compile: snippets
 
-Inside a Pharo snippet that uses `compile:classified:`, string literals in the method
-source must use doubled single quotes:
+A `compile:classified:` call has **two distinct quoting contexts**:
+
+1. **Inside the method source string** (first argument `compile:`): single quotes
+   must be doubled — this includes string literals, pragma values, and any `''` within the source.
+2. **The `classified:` argument** (second argument): a normal single-quoted string —
+   **never doubled**, even though it sits right next to the method source.
 
 ```smalltalk
+"CORRECT"
 MyClass compile: 'greet
-    ^ ''Hello, world!''' classified: 'accessing'.
+    <description: ''What this does''>
+    ^ ''Hello, world!'''
+classified: 'accessing'.
+
+"WRONG — classified: is outside the source string; doubling its quotes is a syntax error"
+MyClass compile: 'greet
+    ^ 42'
+classified: ''accessing''.    "← evaluates as: empty-string, identifier, empty-string"
 ```
 
 When passing such code via `mcp__gtoolkit-dynaspace__add-snippet`, write the content
