@@ -45,6 +45,10 @@ Alternating text + Pharo snippets that explore the Smalltalk API:
 - Each snippet must be independently evaluable given the previous snippets' state
 - Use workspace variables (`server`, `client`, `tool`) freely — they persist between snippet evaluations
 - The full working example should be the last exploration snippet (starts AND tests AND stops)
+- **Verify before adding**: every Pharo snippet must be evaluated via `mcp__gtoolkit__eval`
+  before being added to the page. Never write exploration snippets speculatively — if you
+  don't know whether an API exists or what it returns, eval it first, then write the snippet
+  with the known result.
 
 ## Section 3: Example-driven Development Sections
 

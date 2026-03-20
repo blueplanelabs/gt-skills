@@ -17,7 +17,9 @@ description: >
 ## Workflow
 
 1. **Clarify** — Understand what class/feature to implement and what the production class should do
-2. **Explore the API** — Identify which GT classes to use; look them up via MCP eval if needed
+2. **Explore the API** — Identify which GT classes to use. Verify each API call you plan to use
+   via `mcp__gtoolkit__eval` before writing Section 2 snippets. Only add a snippet to the page
+   after confirming it evaluates without error.
 3. **Build the page** — Create a Lepiter page with the three-section pattern (see below). For each EDD iteration: **invoke `gt-example-driven-development` first** (code cycle: failing example → explore → implement → verify), then document the iteration in the page. Keep generated code in the image until all sections are documented. After all content snippets, add a final **cleanup snippet** that reverts all changes made by the page: removes new classes (`removeFromSystem`), restores deleted methods (recompile with original implementation), and reverts modified methods (recompile with previous implementation).
 4. **Undo** — Execute the cleanup snippet at the end of the page (removes new classes, restores deleted/modified methods).
 5. **Validate** — Re-evaluate all page snippets top-to-bottom via MCP to confirm the page is self-contained and recreates the code from scratch.
