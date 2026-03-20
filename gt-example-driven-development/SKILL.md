@@ -34,6 +34,15 @@ mcp__gtoolkit-dynaspace__eval  code: "1+1"
 If the tool is unavailable, ask the user to start the MCP server by evaluating the startup
 snippet on the "Servidor MCP para GToolkit" Lepiter page.
 
+Before writing the first example, **map all feature specifications to examples**.
+Every specified behavior must have at least one example that would fail if that
+behavior were not implemented. The feature is complete when all examples pass —
+if a specification has no example, it has no guarantee.
+
+List the examples you plan to write before starting the iteration cycle. It is
+fine to discover new examples as you go, but start with a complete mapping of
+what you know.
+
 ## The Example-driven Development Iteration Cycle
 
 Each feature is built example by example. For each iteration:
@@ -91,6 +100,33 @@ MyClassExamples compile: 'exampleRendersCorrectly
 Direct assertions on visual properties (`el size`, `el position`, etc.) always fail because
 layout hasn't run yet. `BlScripter new element:` triggers layout via `BlMockedHost` (headless).
 See the `gt-scripter` skill for full patterns: navigation, mouse/keyboard, substeps, helpers.
+
+**Write assertions that fully capture the specification.** Ask: *if the implementation were
+subtly wrong — returning the wrong color, the wrong count, or the wrong element — would this
+assertion catch it?* A proxy assertion (`size > 0`, `alpha > 0`) that passes for any non-empty
+result is a weak specification. Prefer behavioral assertions that fail when the implementation
+produces the wrong value:
+
+```smalltalk
+"WEAK — passes if any color is set"
+s value: [:el | el background paint color alpha > 0] equals: [true].
+
+"STRONG — fails if the color is not the expected green for #added"
+s value: [:el | el background paint color]
+  equals: [Color r: 0.87 g: 1.0 b: 0.87 alpha: 1.0].
+```
+
+**For BlElement assertions, plan IDs when writing the assertion** — then assign them in
+Step 3. Use `s id: #elementId` to navigate to specific sub-elements rather than
+`s onChildAt: N`, which breaks when the element structure changes:
+
+```smalltalk
+"FRAGILE — breaks if a header is added above the rows pane"
+s onChildAt: 1; value: [:el | el children size] equals: [14].
+
+"STABLE — navigates directly to the named element"
+s id: #rowsPane; value: [:el | el children size] equals: [14].
+```
 
 The example should fail at this point. That's intentional and expected.
 
@@ -241,6 +277,17 @@ When deciding which instance variables to add and how to structure methods, appl
   *Example: `DynOSProCamCalibrator >> calibrate` collects camera points and delegates
   to `calibrateFromCameraPoints:worldPoints:`, which contains all the
   HomographyCalculator logic and can be tested with synthetic data.*
+
+**Assign `id:` to key sub-elements when adding them to the element tree.** This makes
+BlScripter navigation stable across structural changes. Assign the IDs planned in Step 1:
+
+```smalltalk
+rowsPane := BrVerticalPane new hMatchParent; vFitContent; id: #rowsPane.
+self addChild: rowsPane.
+```
+
+IDs can be assigned at any point of construction — in `initialize`, in a factory method,
+or inline when adding to the parent. The rule is: assign when the element enters the tree.
 
 ### Step 4 — Verify the Example Passes
 

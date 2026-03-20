@@ -130,6 +130,12 @@ s // BrTabGroup; / #header; // #tabbar; onChildAt: 3.
 
 `//` is the most common for finding nested elements without knowing exact depth.
 
+**Prefer `id:` over index-based navigation.** `s onChildAt: N` breaks when the element
+structure changes (e.g., adding a header shifts all children). If the target element
+doesn't have an ID yet, assign one in the production class when adding it to the tree:
+`mySubElement id: #elementId`. Plan the IDs in Step 1 of EDD when writing the assertion,
+then assign them in Step 3 when implementing the element.
+
 ---
 
 ## Grouping with substeps
