@@ -70,22 +70,31 @@ introductory text snippet, not in the title.
 Good titles: "Creación del tablero vacío", "Marcado de una casilla", "Detección de victoria en fila"
 Avoid: "EDD - DynOSTicTacToeBoard - Iteración 1: exampleBoardCreation"
 
-**Sequence for each iteration:**
+One section per iteration. MLP **does not execute the code cycle** — that is entirely owned
+by `gt-example-driven-development`.
 
-1. **[text]** Write the introduction snippet — descriptive title (`###`) + what this example will verify and why it's the right next step. (Write this BEFORE invoking EDD.)
-2. **STOP — invoke `gt-example-driven-development` via the Skill tool.** Pass the example name and what it should verify. Wait for EDD to complete and return its handoff summary.
-3. **[pharo]** Examples class definition — add from EDD handoff (only if examples class was created in this iteration; `subclass:` definition).
-4. **[pharo]** Example method — add from EDD handoff (`compile:classified:` call with the `<gtExample>` method).
-5. **[text]** "Exploración interactiva" — write based on the EDD handoff summary (what was explored and found).
-6. **[pharo]** Exploration snippets — add from EDD handoff (the eval calls and intermediate results EDD used).
-7. **[text]** "Implementación mínima" — write based on the EDD handoff summary (what minimum code was needed and why).
-8. **[pharo]** Production class definition — add from EDD handoff (only if production class was created in this iteration; `subclass:` definition).
-9. **[pharo]** Method definitions — add from EDD handoff (`compile:classified:` calls; always in a separate snippet from the class definition).
-10. **[example]** `ClassName>>exampleMethodName` — live verification that it passes.
+Each section is titled with a **short descriptive phrase** explaining what the example verifies,
+not a technical identifier. The example method name and iteration number belong in the
+introductory text snippet, not in the title.
 
-Steps 3 and 8 are included only when a new class was created in this iteration (per EDD handoff).
-Never combine the class definition and method compilation into the same snippet —
-`compile:classified:` fails if the class doesn't exist yet.
+Good titles: "Creación del tablero vacío", "Marcado de una casilla", "Detección de victoria en fila"
+Avoid: "EDD - DynOSTicTacToeBoard - Iteración 1: exampleBoardCreation"
+
+Snippets must be evaluable top-to-bottom, in this order:
+
+1. **[text]** Introduction — descriptive title (`###`) + iteration reference (`exampleMethodName`, N) + what this example tests and why it's the right next step
+2. **[pharo]** Example class definition - only in the needed example class doesn't  exist yet (`subclass:` definition)
+3. **[pharo]** Example definition via `compile:classified:` (the initially failing example)
+4. **[text]** "Exploración interactiva" — explain what you explored and what you found
+5. **[pharo]** Exploration snippets — the eval calls and intermediate results from step 2
+6. **[text]** "Implementación mínima" — explain what minimum code is needed and why
+7. **[pharo]** Class definition — only if the production class doesn't exist yet (`subclass:` definition)
+8. **[pharo]** Method definitions via `compile:classified:` — always in a separate snippet from the class definition
+9. **[example]** `ClassName>>exampleMethodName` — live verification that it passes
+
+Steps 2 and 7 are included only when a new class is created in this iteration. Never combine the class
+definition and method compilation into the same snippet — `compile:classified:` fails if the
+class doesn't exist yet.
 
 **Design guidance:**
 - One class per page is the norm; split into sub-pages if complexity grows
@@ -119,25 +128,23 @@ Never combine the class definition and method compilation into the same snippet 
 ── Section 3: Example-driven Development ───────────────────────
 8.  text    — "## Example-driven Development" (section heading)
 
-── Section 3: EDD Iteration 1 ──────────────────────────────────────
-9.  text    — "### Creación del objeto" (write BEFORE invoking EDD)
-    *** STOP — invoke gt-example-driven-development via Skill tool ***
-10. pharo   — Examples class definition (from EDD handoff; only if class didn't exist yet)
-11. pharo   — compile: example method (from EDD handoff)
-12. text    — "Exploración interactiva" (written from EDD handoff summary)
-13. pharo   — exploration eval snippets (from EDD handoff)
-14. text    — "Implementación mínima" (written from EDD handoff summary)
-15. pharo   — Production class definition (from EDD handoff; only if class didn't exist yet)
-16. pharo   — compile: production methods (from EDD handoff)
+── Section 3: EDD Iteration 1 ──────────────────────────────────
+9.  text    — "### Creación del objeto" (descriptive title + iteration ref in body)
+10. pharo   — Examples class definition (only if class doesn't exist yet)
+11. pharo   — compile: example method (initially failing)
+12. text    — "Exploración interactiva"
+13. pharo   — exploration eval snippets
+14. text    — "Implementación mínima"
+15. pharo   — Production class definition (only if class doesn't exist yet)
+16. pharo   — compile: production methods
 17. example — MyClassExamples>>exampleCreation
 
-── Section 3: EDD Iteration 2 ──────────────────────────────────────
-18. text    — "### Comportamiento principal" (write BEFORE invoking EDD)
-    *** STOP — invoke gt-example-driven-development via Skill tool ***
-19. pharo   — compile: example method (from EDD handoff)
-20. text    — "Exploración interactiva" (written from EDD handoff summary)
-21. pharo   — exploration eval snippets (from EDD handoff)
-22. text    — "Implementación mínima" (written from EDD handoff summary)
-23. pharo   — compile: production methods (from EDD handoff)
+── Section 3: EDD Iteration 2 ──────────────────────────────────
+18. text    — "### Comportamiento principal" (descriptive title + iteration ref in body)
+19. pharo   — compile: example method (initially failing)
+20. text    — "Exploración interactiva"
+21. pharo   — exploration eval snippets
+22. text    — "Implementación mínima"
+23. pharo   — compile: production methods
 24. example — MyClassExamples>>exampleBehavior
 ```

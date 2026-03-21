@@ -43,6 +43,25 @@ List the examples you plan to write before starting the iteration cycle. It is
 fine to discover new examples as you go, but start with a complete mapping of
 what you know.
 
+The mapping must be at the **assertion level**, not the example level. For each
+specified behavior, name the example and the concrete assertion that would fail
+if that behavior were absent:
+
+```
+INCORRECT — mapping at example level (too coarse):
+  pageLiveDiffElement → covers header, toolbar and rows
+
+CORRECT — mapping at assertion level:
+  "header shows label 'Repository:'"
+    → pageLiveDiffElement: header children first text asString = 'Repository:'
+  "button label is 'Hide unchanged' initially"
+    → pageLiveDiffElement: toolbar children first label = 'Hide unchanged'
+  "4 rows when showUnchanged = true"
+    → pageLiveDiffElement: rowsPane children size = 4
+```
+
+A behavior with no named assertion has no guarantee.
+
 ## The Example-driven Development Iteration Cycle
 
 Each feature is built example by example. For each iteration:
@@ -317,34 +336,6 @@ MyClassExamples compile: 'exampleNextBehavior
 
 Follow the same cycle: fail → explore → implement → verify.
 
-### Step 4b — Handoff to MLP (when invoked from gt-moldable-literate-programming)
-
-When EDD is invoked from within a MLP session, signal completion by providing a structured
-handoff summary. MLP uses this summary to write the documentation snippets — it does not
-re-derive anything from the code.
-
-**Required handoff items:**
-
-1. **Example method name** — e.g. `exampleBoardCreation`
-2. **Examples class** — name + whether it was newly created in this iteration
-3. **Production class** — name + whether it was newly created in this iteration
-4. **Exploration snippets** — the exact eval expressions used in Step 2 (copy-paste ready)
-5. **Implementation note** — one sentence: what method(s) were added/changed and why
-6. **Any regressions** — list previous examples re-run and whether they passed
-
-**Handoff format (return this at the end of each iteration):**
-
-```
-EDD HANDOFF — iteration N
-Example:      MyClassExamples>>exampleMethodName
-Examples class: MyClassExamples  [new | existing]
-Production class: MyClass  [new | existing]
-Exploration:
-  MyClass new           "→ a MyClass with foo=nil"
-  MyClass new someMethod  "→ 42"
-Implementation: Added `someMethod` returning 42; class definition added `foo` instvar.
-Regressions: examplePrevious → PASS
-```
 
 > **Note**: Documentation (Lepiter page creation) for each iteration is handled by the
 > `gt-moldable-literate-programming` skill. This skill focuses exclusively on the code cycle.
