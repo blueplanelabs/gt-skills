@@ -317,6 +317,35 @@ MyClassExamples compile: 'exampleNextBehavior
 
 Follow the same cycle: fail → explore → implement → verify.
 
+### Step 4b — Handoff to MLP (when invoked from gt-moldable-literate-programming)
+
+When EDD is invoked from within a MLP session, signal completion by providing a structured
+handoff summary. MLP uses this summary to write the documentation snippets — it does not
+re-derive anything from the code.
+
+**Required handoff items:**
+
+1. **Example method name** — e.g. `exampleBoardCreation`
+2. **Examples class** — name + whether it was newly created in this iteration
+3. **Production class** — name + whether it was newly created in this iteration
+4. **Exploration snippets** — the exact eval expressions used in Step 2 (copy-paste ready)
+5. **Implementation note** — one sentence: what method(s) were added/changed and why
+6. **Any regressions** — list previous examples re-run and whether they passed
+
+**Handoff format (return this at the end of each iteration):**
+
+```
+EDD HANDOFF — iteration N
+Example:      MyClassExamples>>exampleMethodName
+Examples class: MyClassExamples  [new | existing]
+Production class: MyClass  [new | existing]
+Exploration:
+  MyClass new           "→ a MyClass with foo=nil"
+  MyClass new someMethod  "→ 42"
+Implementation: Added `someMethod` returning 42; class definition added `foo` instvar.
+Regressions: examplePrevious → PASS
+```
+
 > **Note**: Documentation (Lepiter page creation) for each iteration is handled by the
 > `gt-moldable-literate-programming` skill. This skill focuses exclusively on the code cycle.
 

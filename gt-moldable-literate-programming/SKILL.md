@@ -4,8 +4,8 @@ description: >
   Guide for implementing functionality in GToolkit/Pharo following the "moldable literate
   programming" style. Creates a single Lepiter page where readers understand a feature by
   evaluating Smalltalk snippets top-to-bottom: interactive API exploration first, then one
-  section per Example-driven Development iteration (each with its failing example, exploration, minimum
-  implementation, and live verification).
+  section per Example-driven Development iteration. The code cycle for each iteration is
+  owned by gt-example-driven-development; MLP owns the page structure and documentation.
   Use when the user says things like: "implementa con moldable literate programming",
   "desarrolla usando live literate programming", "crea una funcionalidad usando literate
   programming con Lepiter", "crea una página Lepiter para implementar X", or any request
@@ -20,7 +20,7 @@ description: >
 2. **Explore the API** — Identify which GT classes to use. Verify each API call you plan to use
    via `mcp__gtoolkit__eval` before writing Section 2 snippets. Only add a snippet to the page
    after confirming it evaluates without error.
-3. **Build the page** — Create a Lepiter page with the three-section pattern (see below). For each EDD iteration: **invoke `gt-example-driven-development` first** (code cycle: failing example → explore → implement → verify), then document the iteration in the page. Keep generated code in the image until all sections are documented. After all content snippets, add a final **cleanup snippet** that reverts all changes made by the page: removes new classes (`removeFromSystem`), restores deleted methods (recompile with original implementation), and reverts modified methods (recompile with previous implementation).
+3. **Build the page** — Create a Lepiter page with the three-section pattern (see below). For each EDD iteration: **STOP — invoke `gt-example-driven-development` using the Skill tool.** Do not write examples, exploration snippets, or implementation code yourself — EDD owns the entire code cycle. Only after EDD signals completion (via its handoff summary), document what EDD produced in the page (see `references/page-structure.md`). Keep generated code in the image until all sections are documented. After all content snippets, add a final **cleanup snippet** that reverts all changes made by the page: removes new classes (`removeFromSystem`), restores deleted methods (recompile with original implementation), and reverts modified methods (recompile with previous implementation).
 4. **Undo** — Execute the cleanup snippet at the end of the page (removes new classes, restores deleted/modified methods).
 5. **Validate** — Re-evaluate all page snippets top-to-bottom via MCP to confirm the page is self-contained and recreates the code from scratch.
    - **One eval per snippet**: call `mcp__gtoolkit__eval` exactly once per snippet — never merge multiple snippets into a single eval. This prevents `OCUndeclaredVariableNotice` errors caused by Pharo evaluating a newly defined class and its `compile:classified:` calls in the same `DoIt` context.
