@@ -60,17 +60,6 @@ implemented.
 ## Example-driven Development Section Structure
 
 One section per iteration. MLP **does not execute the code cycle** — that is entirely owned
-by `gt-example-driven-development`. MLP writes the intro text first, then invokes EDD, then
-documents what EDD produced.
-
-Each section is titled with a **short descriptive phrase** explaining what the example verifies,
-not a technical identifier. The example method name and iteration number belong in the
-introductory text snippet, not in the title.
-
-Good titles: "Creación del tablero vacío", "Marcado de una casilla", "Detección de victoria en fila"
-Avoid: "EDD - DynOSTicTacToeBoard - Iteración 1: exampleBoardCreation"
-
-One section per iteration. MLP **does not execute the code cycle** — that is entirely owned
 by `gt-example-driven-development`.
 
 Each section is titled with a **short descriptive phrase** explaining what the example verifies,
@@ -79,6 +68,7 @@ introductory text snippet, not in the title.
 
 Good titles: "Creación del tablero vacío", "Marcado de una casilla", "Detección de victoria en fila"
 Avoid: "EDD - DynOSTicTacToeBoard - Iteración 1: exampleBoardCreation"
+
 
 Snippets must be evaluable top-to-bottom, in this order:
 

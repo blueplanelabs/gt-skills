@@ -20,9 +20,16 @@ description: >
 2. **Explore the API** — Identify which GT classes to use. Verify each API call you plan to use
    via `mcp__gtoolkit__eval` before writing Section 2 snippets. Only add a snippet to the page
    after confirming it evaluates without error.
-3. **Build the page** — **invoke `gt-example-driven-development` using the Skill tool first.**
-Do not write examples, exploration snippets, or implementation code yourself — EDD owns the entire code cycle.
-Create a Lepiter page with the three-section pattern (see below); for each Example-driven Development iteration, keep the generated code in the image until all sections are documented. After all content snippets, add a final **cleanup snippet** that reverts all changes made by the page: removes new classes (`removeFromSystem`), restores deleted methods (recompile with original implementation), and reverts modified methods (recompile with previous implementation).
+3. **Build the page** — Create a Lepiter page with the three-section pattern (see below):
+   build the Introduction and Interactive Exploration sections yourself, adding only API
+   exploration snippets. When you reach the Example-driven Development section, invoke
+   `gt-example-driven-development` using the Skill tool. Do not write the examples or
+   implementation code for this section yourself — EDD owns the entire code cycle here.
+   For each iteration, keep the generated code in the image until all sections are
+   documented. After all content snippets, add a final **cleanup snippet** that reverts
+   all changes made by the page: removes new classes (`removeFromSystem`), restores
+   deleted methods (recompile with original implementation), and reverts modified methods
+   (recompile with previous implementation).
 4. **Undo** — Execute the cleanup snippet at the end of the page (removes new classes, restores deleted/modified methods).
 5. **Validate** — Re-evaluate all page snippets top-to-bottom via MCP to confirm the page is self-contained and recreates the code from scratch.
    - **One eval per snippet**: call `mcp__gtoolkit__eval` exactly once per snippet — never merge multiple snippets into a single eval. This prevents `OCUndeclaredVariableNotice` errors caused by Pharo evaluating a newly defined class and its `compile:classified:` calls in the same `DoIt` context.
