@@ -7,7 +7,8 @@ description: >
   interactions (clicks, keyboard, mouse, drag). BlElement >> size returns 0@0 until layout
   runs; BlScripter triggers the full layout cycle headlessly via BlMockedHost.
   Activate when the user says "test a graphical element", "write an example with BlScripter",
-  "assert on element size", "simulate user interaction", or similar.
+  "assert on element size", "simulate user interaction", or similar — or when EDD explicitly
+  invokes it for a BlElement example.
 ---
 
 # GToolkit BlScripter Guide
