@@ -256,6 +256,10 @@ MyClass compile: 'someMethod
   example was too simple to require that logic yet.
 - Never implement logic for a future example: if the current example passes with `^ false`,
   leave it as `^ false`.
+- Don't add method calls to the production code path if no current example exercises them.
+  If the current example only asserts on state, omit any call whose effect goes untested —
+  add it only when a new example requires it. The principle applies equally to execution
+  paths and to return value logic.
 
 **Implementation design heuristics**
 
