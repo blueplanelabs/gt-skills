@@ -34,6 +34,50 @@ mcp__gtoolkit-dynaspace__eval  code: "1+1"
 If the tool is unavailable, ask the user to start the MCP server by evaluating the startup
 snippet on the "Servidor MCP para GToolkit" Lepiter page.
 
+Before writing the first example, **map all feature specifications to examples**.
+Every specified behavior must have at least one example that would fail if that
+behavior were not implemented. The feature is complete when all examples pass —
+if a specification has no example, it has no guarantee.
+
+List the examples you plan to write before starting the iteration cycle. It is
+fine to discover new examples as you go, but start with a complete mapping of
+what you know.
+
+The mapping must be at the **assertion level**, not the example level. For each
+specified behavior, name the example and the concrete assertion that would fail
+if that behavior were absent:
+
+```
+INCORRECT — mapping at example level (too coarse):
+  pageLiveDiffElement → covers header, toolbar and rows
+
+CORRECT — mapping at assertion level (domain object):
+  "counter starts at zero"
+    → exampleCounter: counter value = 0
+  "incrementing adds 1"
+    → exampleCounterIncrement: counter value = 1
+
+CORRECT — mapping at assertion level (BlElement — graphical specification):
+  For BlElement specs, plan IDs when writing assertions and invoke
+  `gt-scripter` using the Skill tool before writing the first example.
+  Use id: notation — never index-based:
+
+  "header shows label 'Repository:'"
+    → pageLiveDiffElement:
+        s id: #header; checkStep: [:s |
+            s value: [:el | el children first text asString] equals: ['Repository:']]
+  "button label is 'Hide unchanged' initially"
+    → pageLiveDiffElement:
+        s id: #toolbar; / BrButton; checkStep: [:s |
+            s value: [:el | el label] equals: ['Hide unchanged']]
+  "4 rows when showUnchanged = true"
+    → pageLiveDiffElement:
+        s id: #rowsPane; checkStep: [:s |
+            s value: [:el | el children size] equals: [4]]
+```
+
+A behavior with no named assertion has no guarantee.
+
 ## The Example-driven Development Iteration Cycle
 
 Each feature is built example by example. For each iteration:
@@ -72,25 +116,34 @@ Every example must include `<description:>` and `<return:>`. Add `<after:>` or o
 when needed (see **Pragmas** section below).
 
 **If the example tests a `BlElement`** (size, position, children, rendering, or user interactions),
-use `<return: #BlScripter>` instead of the element type, and wrap assertions in a `BlScripter`:
+invoke `gt-scripter` using the Skill tool before writing the example. Do not apply BlScripter
+patterns from memory — follow the loaded skill.
+
+Key rules to keep in mind when planning the assertion:
+- Use `<return: #BlScripter>` instead of the element type
+- Plan IDs for key sub-elements now (Step 1) — you will assign them in Step 3
+- Direct assertions on visual properties always fail before layout runs
+
+**Write assertions that fully capture the specification.** Ask: *if the implementation were
+subtly wrong — returning the wrong color, the wrong count, or the wrong element — would this
+assertion catch it?* A proxy assertion (`size > 0`, `alpha > 0`) that passes for any non-empty
+result is a weak specification. Prefer behavioral assertions that fail when the implementation
+produces the wrong value:
 
 ```smalltalk
-MyClassExamples compile: 'exampleRendersCorrectly
-    <gtExample>
-    <description: ''Element renders with correct size''>
-    <return: #BlScripter>
-    | element scripter |
-    element := MyElement new.
-    scripter := BlScripter new element: element.
-    scripter checkStep: [ :s |
-        s value: [ :el | el size ] equals: [ 120 @ 120 ] ].
-    ^ scripter
-'' classified: ''examples''.
+"WEAK — passes if any color is set"
+s value: [:el | el background paint color alpha > 0] equals: [true].
+
+"STRONG — fails if the color is not the expected green for #added"
+s value: [:el | el background paint color]
+  equals: [Color r: 0.87 g: 1.0 b: 0.87 alpha: 1.0].
 ```
 
-Direct assertions on visual properties (`el size`, `el position`, etc.) always fail because
-layout hasn't run yet. `BlScripter new element:` triggers layout via `BlMockedHost` (headless).
-See the `gt-scripter` skill for full patterns: navigation, mouse/keyboard, substeps, helpers.
+**For BlElement assertions, plan IDs when writing the assertion** — then assign them in
+Step 3. This creates an explicit contract between the assertion (Step 1) and the
+implementation (Step 3): the ID used in `s id: #elementId` must be assigned in the
+production class when the element enters the tree. The full navigation patterns
+(id:, //, onChildAt:, etc.) are provided by the `gt-scripter` skill.
 
 The example should fail at this point. That's intentional and expected.
 
@@ -203,6 +256,10 @@ MyClass compile: 'someMethod
   example was too simple to require that logic yet.
 - Never implement logic for a future example: if the current example passes with `^ false`,
   leave it as `^ false`.
+- Don't add method calls to the production code path if no current example exercises them.
+  If the current example only asserts on state, omit any call whose effect goes untested —
+  add it only when a new example requires it. The principle applies equally to execution
+  paths and to return value logic.
 
 **Implementation design heuristics**
 
@@ -242,6 +299,11 @@ When deciding which instance variables to add and how to structure methods, appl
   to `calibrateFromCameraPoints:worldPoints:`, which contains all the
   HomographyCalculator logic and can be tested with synthetic data.*
 
+**Assign `id:` to key sub-elements when adding them to the element tree**, using the IDs
+planned in Step 1. IDs can be assigned at any point of construction — in `initialize`,
+in a factory method, or inline when adding to the parent. The rule is: assign when the
+element enters the tree.
+
 ### Step 4 — Verify the Example Passes
 
 Run the example and confirm it passes (no assertion errors, returns the expected value):
@@ -269,6 +331,7 @@ MyClassExamples compile: 'exampleNextBehavior
 ```
 
 Follow the same cycle: fail → explore → implement → verify.
+
 
 > **Note**: Documentation (Lepiter page creation) for each iteration is handled by the
 > `gt-moldable-literate-programming` skill. This skill focuses exclusively on the code cycle.

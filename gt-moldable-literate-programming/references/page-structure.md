@@ -45,6 +45,10 @@ Alternating text + Pharo snippets that explore the Smalltalk API:
 - Each snippet must be independently evaluable given the previous snippets' state
 - Use workspace variables (`server`, `client`, `tool`) freely — they persist between snippet evaluations
 - The full working example should be the last exploration snippet (starts AND tests AND stops)
+- **Verify before adding**: every Pharo snippet must be evaluated via `mcp__gtoolkit__eval`
+  before being added to the page. Never write exploration snippets speculatively — if you
+  don't know whether an API exists or what it returns, eval it first, then write the snippet
+  with the known result.
 
 ## Section 3: Example-driven Development Sections
 
@@ -55,7 +59,8 @@ implemented.
 
 ## Example-driven Development Section Structure
 
-One section per iteration.
+One section per iteration. MLP **does not execute the code cycle** — that is entirely owned
+by `gt-example-driven-development`.
 
 Each section is titled with a **short descriptive phrase** explaining what the example verifies,
 not a technical identifier. The example method name and iteration number belong in the
@@ -63,6 +68,7 @@ introductory text snippet, not in the title.
 
 Good titles: "Creación del tablero vacío", "Marcado de una casilla", "Detección de victoria en fila"
 Avoid: "EDD - DynOSTicTacToeBoard - Iteración 1: exampleBoardCreation"
+
 
 Snippets must be evaluable top-to-bottom, in this order:
 
